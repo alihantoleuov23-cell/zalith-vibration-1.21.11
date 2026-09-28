@@ -2,7 +2,7 @@ package top.fifthlight.touchcontroller.fabric.v1_21_11
 
 import net.fabricmc.api.ClientModInitializer
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents
-import net.fabricmc.fabric.api.client.event.player.ClientPlayerBlockBreakEvents
+import net.fabricmc.fabric.api.event.client.player.ClientPlayerBlockBreakEvents
 import org.slf4j.LoggerFactory
 import top.fifthlight.touchcontroller.common.event.window.WindowEvents
 import top.fifthlight.touchcontroller.common.platform.provider.PlatformProvider
@@ -19,10 +19,11 @@ class TouchController : ClientModInitializer {
             runCatching {
                 PlatformProvider.loadNative()
                 WindowEvents.loadPlatformWindow()
+
                 logger.info("TouchController vibration platform initialized")
             }.onFailure { error ->
                 logger.warn(
-                    "TouchController vibration platform could not be initialized",
+                    "Failed to initialize TouchController vibration platform",
                     error
                 )
             }
@@ -31,7 +32,9 @@ class TouchController : ClientModInitializer {
         ClientPlayerBlockBreakEvents.AFTER.register { _, _, _, _ ->
             runCatching {
                 PlatformProvider.platform?.sendEvent(
-                    VibrateMessage(VibrateMessage.Kind.BLOCK_BROKEN)
+                    VibrateMessage(
+                        VibrateMessage.Kind.BLOCK_BROKEN
+                    )
                 )
             }.onFailure { error ->
                 logger.warn(
@@ -46,7 +49,7 @@ class TouchController : ClientModInitializer {
                 PlatformProvider.platform?.close()
             }.onFailure { error ->
                 logger.warn(
-                    "Failed to close vibration platform",
+                    "Failed to close TouchController platform",
                     error
                 )
             }
