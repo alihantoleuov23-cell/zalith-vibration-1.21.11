@@ -1,23 +1,23 @@
-/*
- * SPDX-License-Identifier: LGPL-3.0-or-later
- * Copyright (C) 2026 fifth_light
- */
-
 package top.fifthlight.touchcontroller.common.event.block
 
-import top.fifthlight.touchcontroller.common.config.GlobalConfig
-import top.fifthlight.touchcontroller.common.config.data.StatusConfig
-import top.fifthlight.touchcontroller.common.config.holder.GlobalConfigHolder
-import top.fifthlight.touchcontroller.common.model.ControllerHudModel
+import org.slf4j.LoggerFactory
+import top.fifthlight.touchcontroller.common.platform.provider.PlatformProvider
+import top.fifthlight.touchcontroller.proxy.message.VibrateMessage
 
 object BlockBreakEvents {
+
+    private val logger = LoggerFactory.getLogger(BlockBreakEvents::class.java)
+
     fun afterBlockBreak() {
-        val config = GlobalConfigHolder.config.value
-        if (config.status.status == StatusConfig.Status.DISABLED) {
-            return
-        }
-        if (config.regular.vibration) {
-            ControllerHudModel.status.vibrate = true
+        runCatching {
+            PlatformProvider.platform?.sendEvent(
+                VibrateMessage(VibrateMessage.Kind.BLOCK_BROKEN)
+            )
+        }.onFailure { error ->
+            logger.warn(
+                "Failed to send block break vibration",
+                error
+            )
         }
     }
 }
